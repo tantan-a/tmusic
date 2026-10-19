@@ -60,17 +60,22 @@
        ========================================================================= -->
   <video 
     id="hero-video"
-    class="absolute inset-0 w-full h-full object-cover z-0 video-background"
+    class="absolute inset-0 w-full h-full object-cover z-0 video-background pointer-events-none"
     autoplay 
     loop 
     muted 
     playsinline 
+    webkit-playsinline="true"
+    x5-playsinline="true"
+    x5-video-player-type="h5-page"
+    x5-video-player-fullscreen="false"
+    disablePictureInPicture
     preload="metadata">
     <source src="default_video.mp4" type="video/mp4">
   </video>
 
   <!-- Fullscreen YouTube Video Clip Background Wrapper -->
-  <div id="yt-video-backdrop" class="yt-video-backdrop hidden-backdrop" aria-hidden="true">
+  <div id="yt-video-backdrop" class="yt-video-backdrop hidden-backdrop">
     <div id="yt-player-wrapper" class="yt-player-wrapper">
       <div id="yt-player-container"></div>
     </div>
