@@ -119,6 +119,28 @@ try {
 // Mobile Device Detection for Adaptive Streaming & Performance Optimization
 const isMobileDevice = (typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) || (typeof window !== 'undefined' && window.innerWidth <= 768);
 
+// Network Connection-Aware Quality Selection for mobile devices
+// Uses navigator.connection API (Chrome Android, Mi Browser) to detect 2G/3G/4G/WiFi
+function getConnectionAwareQuality() {
+  if (!isMobileDevice) return 'auto';
+  try {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn) {
+      const type = conn.effectiveType; // 'slow-2g', '2g', '3g', '4g'
+      const downlink = conn.downlink; // Mbps estimate
+      const saveData = conn.saveData; // User opted into data-saving
+      if (saveData || type === 'slow-2g' || type === '2g') return 'tiny';
+      if (type === '3g' || (downlink && downlink < 1.5)) return 'small';
+      if (type === '4g' && downlink && downlink < 5) return 'medium';
+      if (type === '4g' && downlink && downlink >= 5) return 'large';
+    }
+  } catch (e) {}
+  return 'medium'; // Safe default for mobile
+}
+
+// Detect if device has limited hardware decoder capacity (most phones have 1-2 HW decoders)
+const isLowEndDevice = isMobileDevice && (typeof navigator !== 'undefined' && (navigator.hardwareConcurrency ? navigator.hardwareConcurrency <= 4 : true));
+
 let videoMode = 'default';
 try {
   const savedMode = localStorage.getItem('tmusic_video_mode');
@@ -739,23 +761,41 @@ function onYTPlayerStateChange(event) {
     stopProgressTimer();
     disableCaptions(ytPlayer);
 
-    // Watchdog: If buffering exceeds 2s on mobile or 3.5s on desktop,
-    // step down quality gracefully to tiny/small so audio buffer resumes immediately without freezing
+    // On mobile in default mode, immediately force tiny quality (no watchdog delay needed)
+    if (isMobileDevice && videoMode === 'default' && !bufferingWatchdogTimer) {
+      try {
+        ytPlayer.setPlaybackQuality('tiny');
+        if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
+          ytPlayer.setPlaybackQualityRange('tiny', 'tiny');
+        }
+      } catch (e) {}
+    }
+
+    // Watchdog: progressive quality step-down with faster reaction on mobile
+    // 1st stall: wait 1.5s (mobile) / 3s (desktop), drop one tier
     if (!bufferingWatchdogTimer) {
+      const watchdogDelay = isMobileDevice ? 1500 : 3000;
       bufferingWatchdogTimer = setTimeout(() => {
         if (isPlayerReady && ytPlayer) {
           try {
             isBufferStalled = true;
             if (videoMode === 'default') {
               ytPlayer.setPlaybackQuality('tiny');
-              ytPlayer.setPlaybackQualityRange('tiny', 'small');
+              if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
+                ytPlayer.setPlaybackQualityRange('tiny', 'tiny');
+              }
             } else {
-              ytPlayer.setPlaybackQuality(isMobileDevice ? 'small' : 'medium');
-              ytPlayer.setPlaybackQualityRange('small', isMobileDevice ? 'medium' : 'large');
+              // Network-aware fallback quality
+              const fallbackQ = isMobileDevice ? getConnectionAwareQuality() : 'medium';
+              const safeQ = (fallbackQ === 'tiny' || fallbackQ === 'small') ? fallbackQ : 'small';
+              ytPlayer.setPlaybackQuality(safeQ);
+              if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
+                ytPlayer.setPlaybackQualityRange('tiny', safeQ);
+              }
             }
           } catch (e) {}
         }
-      }, isMobileDevice ? 2000 : 3500);
+      }, watchdogDelay);
     }
   }
 }
@@ -863,7 +903,8 @@ function loadAndPlayTrack(track) {
     } else if (videoQuality && videoQuality !== 'auto') {
       suggestedQ = videoQuality;
     } else if (isMobileDevice) {
-      suggestedQ = 'medium'; // 360p optimal for mobile phone screens
+      // Use network-aware quality: auto-detects 2G/3G/4G/WiFi and picks optimal resolution
+      suggestedQ = getConnectionAwareQuality();
     }
 
     try {
@@ -916,12 +957,15 @@ function loadAndPlayTrack(track) {
 
   showToast(`Playing: ${track.title}`);
 
-  // Defer background preload related tracks until track has established its video/audio buffer (4.5s)
+  // Defer background preload related tracks until track has established its video/audio buffer
+  // Mobile: wait longer (8s) to avoid competing for bandwidth during initial buffer fill
+  // Desktop: 4s is sufficient
+  const preloadDelay = isMobileDevice ? 8000 : 4000;
   setTimeout(() => {
     if (playlist[currentTrackIndex] && playlist[currentTrackIndex].id === track.id) {
       preloadRelatedTracks(track);
     }
-  }, 4500);
+  }, preloadDelay);
 }
 
 function playNextTrack() {
@@ -1114,7 +1158,8 @@ function updateProgress() {
 function startProgressTimer() {
   stopProgressTimer();
   updateProgress();
-  progressTimer = setInterval(updateProgress, 250);
+  // Mobile: poll every 500ms instead of 250ms to reduce main thread load during video decoding
+  progressTimer = setInterval(updateProgress, isMobileDevice ? 500 : 250);
 }
 
 function stopProgressTimer() {
@@ -2130,21 +2175,45 @@ async function togglePopOut() {
 // 5. Initialize DOM Listeners
 document.addEventListener('DOMContentLoaded', () => {
   // Video Background Autoplay Reliability
+  // On mobile: defer ambient video loading to save bandwidth for YouTube playback
   const heroVideo = document.getElementById('hero-video');
   if (heroVideo) {
     heroVideo.muted = true;
     heroVideo.playsInline = true;
-    const playAttempt = heroVideo.play();
-    if (playAttempt !== undefined) {
-      playAttempt.catch(() => {
-        const resumePlay = () => {
+
+    if (isMobileDevice && isLowEndDevice) {
+      // Low-end mobile: don't load ambient video at all to free up the single HW decoder
+      // The CSS gradient/dark background is sufficient on mobile screens
+      heroVideo.removeAttribute('autoplay');
+      heroVideo.preload = 'none';
+      heroVideo.classList.add('is-hidden');
+    } else if (isMobileDevice) {
+      // Standard mobile: defer ambient video load by 6s to prioritize YouTube stream startup
+      heroVideo.removeAttribute('autoplay');
+      heroVideo.preload = 'none';
+      setTimeout(() => {
+        if (videoMode !== 'video') {
+          heroVideo.preload = 'auto';
+          heroVideo.load();
           heroVideo.play().catch(() => {});
-          window.removeEventListener('click', resumePlay);
-          window.removeEventListener('touchstart', resumePlay);
-        };
-        window.addEventListener('click', resumePlay, { once: true });
-        window.addEventListener('touchstart', resumePlay, { once: true });
-      });
+        }
+      }, 6000);
+    } else {
+      // Desktop: play immediately
+      heroVideo.preload = 'auto';
+      heroVideo.load();
+      const playAttempt = heroVideo.play();
+      if (playAttempt !== undefined) {
+        playAttempt.catch(() => {
+          const resumePlay = () => {
+            heroVideo.play().catch(() => {});
+            window.removeEventListener('click', resumePlay);
+            window.removeEventListener('touchstart', resumePlay);
+          };
+          window.addEventListener('click', resumePlay, { once: true });
+          window.addEventListener('touchstart', resumePlay, { once: true });
+        });
+      }
     }
   }
 
@@ -2664,6 +2733,28 @@ document.addEventListener('DOMContentLoaded', () => {
       clearTimeout(toastTimeout);
     });
   }
+
+  // Network Connection Change Listener: auto-adjust quality when connection type changes (e.g. WiFi → 4G → 3G)
+  try {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn && typeof conn.addEventListener === 'function') {
+      conn.addEventListener('change', () => {
+        if (isMobileDevice && (videoQuality === 'auto' || videoQuality === 'medium')) {
+          const newQ = getConnectionAwareQuality();
+          if (isPlayerReady && ytPlayer && videoMode !== 'default') {
+            try {
+              ytPlayer.setPlaybackQuality(newQ);
+              if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
+                ytPlayer.setPlaybackQualityRange('tiny', newQ);
+              }
+              const qName = QUALITY_INFO_MAP[newQ] ? QUALITY_INFO_MAP[newQ].badge : newQ;
+              showToast(`📶 Koneksi berubah, kualitas disesuaikan: ${qName}`);
+            } catch (e) {}
+          }
+        }
+      });
+    }
+  } catch (e) {}
 });
 
 // ==========================================================================
@@ -2673,7 +2764,7 @@ let vizCanvas = null;
 let vizCtx = null;
 let vizAnimationId = null;
 let vizMode = 'bars'; // Default: 'bars' (Studio EQ)
-const NUM_VIZ_BARS = 96;
+const NUM_VIZ_BARS = isMobileDevice ? 48 : 96;
 let vizBars = new Float32Array(NUM_VIZ_BARS);
 let vizPeaks = new Float32Array(NUM_VIZ_BARS);
 let vizPeakSpeed = new Float32Array(NUM_VIZ_BARS);
