@@ -116,6 +116,9 @@ try {
   }
 } catch (e) {}
 
+// Mobile Device Detection for Adaptive Streaming & Performance Optimization
+const isMobileDevice = (typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) || (typeof window !== 'undefined' && window.innerWidth <= 768);
+
 let videoMode = 'default';
 try {
   const savedMode = localStorage.getItem('tmusic_video_mode');
@@ -143,6 +146,7 @@ function setVideoMode(mode, silent = false) {
   });
 
   if (mode === 'video') {
+    // 1. Pause ambient background video completely to free GPU decoder & network bandwidth
     if (heroVideo) {
       heroVideo.classList.add('is-hidden');
       try { heroVideo.pause(); } catch (e) {}
@@ -151,22 +155,48 @@ function setVideoMode(mode, silent = false) {
       ytBackdrop.classList.remove('hidden-backdrop');
       ytBackdrop.classList.add('active-backdrop');
     }
+
+    // 2. Restore video stream quality for active video viewing
+    if (isPlayerReady && ytPlayer) {
+      try {
+        const targetQ = (videoQuality && videoQuality !== 'auto') ? videoQuality : (isMobileDevice ? 'medium' : 'default');
+        ytPlayer.setPlaybackQuality(targetQ);
+        if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
+          ytPlayer.setPlaybackQualityRange('small', (targetQ === 'default' ? (isMobileDevice ? 'hd720' : 'highres') : targetQ));
+        }
+      } catch (e) {}
+    }
+
     if (!silent) showToast('🎬 Video Mode: Memutar video klip YouTube');
   } else {
+    // 1. Resume ambient background video
     if (heroVideo) {
       heroVideo.classList.remove('is-hidden');
-      try { heroVideo.play(); } catch (e) {}
+      try { heroVideo.play().catch(() => {}); } catch (e) {}
     }
     if (ytBackdrop) {
       ytBackdrop.classList.remove('active-backdrop');
       ytBackdrop.classList.add('hidden-backdrop');
     }
-    if (!silent) showToast('🌌 Default Mode: Video ambient background');
+
+    // 2. Optimization for Default Mode:
+    // In ambient mode, the YouTube video is hidden behind ambient background.
+    // Set YouTube video stream to 'tiny' (144p) to reduce bandwidth by 95% and eliminate mobile buffer stalls!
+    if (isPlayerReady && ytPlayer) {
+      try {
+        ytPlayer.setPlaybackQuality('tiny');
+        if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
+          ytPlayer.setPlaybackQualityRange('tiny', 'small');
+        }
+      } catch (e) {}
+    }
+
+    if (!silent) showToast('🌌 Default Mode: Video ambient background (Hemat Data)');
   }
 }
 
 // Video Quality State & Functions
-let videoQuality = 'auto'; // 'auto', 'hd1080', 'hd720', 'large', 'medium', 'small', 'tiny'
+let videoQuality = isMobileDevice ? 'medium' : 'auto'; // 'auto', 'hd1080', 'hd720', 'large', 'medium', 'small', 'tiny'
 let actualQuality = 'auto';
 try {
   const savedQuality = localStorage.getItem('tmusic_video_quality');
@@ -228,25 +258,28 @@ function setVideoQuality(quality, silent = false) {
 
   if (isPlayerReady && ytPlayer) {
     try {
-      if (quality === 'auto') {
+      if (videoMode === 'default') {
+        // In default mode, YouTube video is hidden behind ambient background; keep on tiny (144p) to eliminate stalls
+        ytPlayer.setPlaybackQuality('tiny');
+        if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
+          ytPlayer.setPlaybackQualityRange('tiny', 'small');
+        }
+      } else if (quality === 'auto') {
         if (typeof ytPlayer.setPlaybackQuality === 'function') {
           ytPlayer.setPlaybackQuality('default');
         }
         if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
-          ytPlayer.setPlaybackQualityRange('default', 'highres');
+          ytPlayer.setPlaybackQualityRange('small', isMobileDevice ? 'hd720' : 'highres');
         }
       } else {
         if (typeof ytPlayer.setPlaybackQuality === 'function') {
           ytPlayer.setPlaybackQuality(quality);
         }
-        // Seamless upper-bound range targeting the chosen resolution without hard buffer flush
+        // Adaptive range: allows gracefully dipping down to 'small' if mobile bandwidth drops, preventing hard freezes
         if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
-          ytPlayer.setPlaybackQualityRange(quality, 'highres');
+          ytPlayer.setPlaybackQualityRange('small', quality);
         }
       }
-      // Note: We deliberately avoid calling seekTo(t, true) here.
-      // seekTo(t, true) flushes the entire downloaded media buffer, causing severe buffering stalls.
-      // Leaving the buffer intact allows YouTube DASH to seamlessly transition streams at chunk boundary!
     } catch (e) {
       console.warn('Failed setting playback quality:', e);
     }
@@ -310,37 +343,94 @@ function parseDurationToSeconds(str) {
   return 0;
 }
 
-// 2. YouTube IFrame API Global Callback
-window.onYouTubeIframeAPIReady = function() {
+// 2. YouTube IFrame API Global Callback & Cross-Browser Initialization
+let isPlayerInitializing = false;
+let pendingTrackToPlay = null;
+
+function initYouTubePlayer() {
+  if (ytPlayer || isPlayerInitializing || !window.YT || !window.YT.Player) return;
+  isPlayerInitializing = true;
+
   const current = playlist[currentTrackIndex] || CURATED_PLAYLIST[0];
-  ytPlayer = new YT.Player('yt-player-container', {
-    height: '100%',
-    width: '100%',
-    videoId: current.id,
-    playerVars: {
-      autoplay: 0,
-      controls: 0,
-      disablekb: 1,
-      enablejsapi: 1,
-      fs: 0,
-      playsinline: 1,
-      rel: 0,
-      modestbranding: 1,
-      iv_load_policy: 3,
-      cc_load_policy: 0,
-      cc_lang_pref: 'none',
-      origin: window.location.origin || (window.location.protocol + '//' + window.location.host),
-      widget_referrer: window.location.href
-    },
-    events: {
-      onReady: onYTPlayerReady,
-      onStateChange: onYTPlayerStateChange,
-      onPlaybackQualityChange: onYTPlaybackQualityChange,
-      onApiChange: onYTApiChange,
-      onError: onYTPlayerError
+
+  let playerOrigin = undefined;
+  try {
+    if (window.location && window.location.protocol && (window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
+      playerOrigin = window.location.origin || `${window.location.protocol}//${window.location.host}`;
     }
-  });
+  } catch (e) {}
+
+  const playerVars = {
+    autoplay: 0,
+    controls: 0,
+    disablekb: 1,
+    enablejsapi: 1,
+    fs: 0,
+    playsinline: 1,
+    rel: 0,
+    modestbranding: 1,
+    iv_load_policy: 3,
+    cc_load_policy: 0,
+    cc_lang_pref: 'none'
+  };
+
+  if (playerOrigin && playerOrigin !== 'null') {
+    playerVars.origin = playerOrigin;
+  }
+
+  try {
+    ytPlayer = new YT.Player('yt-player-container', {
+      height: '100%',
+      width: '100%',
+      videoId: current.id,
+      playerVars: playerVars,
+      events: {
+        onReady: onYTPlayerReady,
+        onStateChange: onYTPlayerStateChange,
+        onPlaybackQualityChange: onYTPlaybackQualityChange,
+        onApiChange: onYTApiChange,
+        onError: onYTPlayerError
+      }
+    });
+  } catch (err) {
+    console.error('Failed to create YT.Player:', err);
+    isPlayerInitializing = false;
+  }
+}
+
+// Global hook for YouTube IFrame API
+window.onYouTubeIframeAPIReady = function() {
+  initYouTubePlayer();
 };
+
+// Immediate check: If YouTube API already loaded before script.js finished parsing
+if (window.YT && window.YT.Player) {
+  initYouTubePlayer();
+} else {
+  // Watchdog poller: catches ready event across Safari, Firefox, Edge, and mobile browsers
+  let ytPollAttempts = 0;
+  const ytReadyPoll = setInterval(() => {
+    ytPollAttempts++;
+    if (window.YT && window.YT.Player) {
+      clearInterval(ytReadyPoll);
+      if (!ytPlayer) initYouTubePlayer();
+    } else if (ytPollAttempts >= 80) {
+      clearInterval(ytReadyPoll);
+    }
+  }, 100);
+}
+
+// Dynamic injection fallback: ensures API script loads even if blocked or delayed
+setTimeout(() => {
+  if (!window.YT) {
+    const existing = document.querySelector('script[src*="youtube.com/iframe_api"]');
+    if (!existing) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.body.appendChild(tag);
+    }
+  }
+}, 2000);
 
 function disableCaptions(player) {
   const p = player || ytPlayer;
@@ -366,15 +456,37 @@ function onYTApiChange(event) {
 
 function onYTPlayerReady(event) {
   isPlayerReady = true;
-  event.target.setVolume(lastVolume);
+  isPlayerInitializing = false;
+
+  // Ensure iframe permissions across browsers (Safari, Firefox, Chrome, Edge)
+  try {
+    const iframe = document.querySelector('#yt-player-container iframe');
+    if (iframe) {
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+      iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    }
+  } catch (e) {}
+
+  try {
+    event.target.setVolume(lastVolume);
+  } catch (e) {}
+
   updatePlayerUI(playlist[currentTrackIndex]);
   setVideoMode(videoMode, true);
   setVideoQuality(videoQuality, true);
   disableCaptions(event.target);
   setTimeout(() => disableCaptions(event.target), 600);
-  if (autoPlayOnReady) {
+
+  if (pendingTrackToPlay) {
+    const track = pendingTrackToPlay;
+    pendingTrackToPlay = null;
     autoPlayOnReady = false;
-    ytPlayer.playVideo();
+    loadAndPlayTrack(track);
+  } else if (autoPlayOnReady) {
+    autoPlayOnReady = false;
+    try {
+      ytPlayer.playVideo();
+    } catch (e) {}
     setPlayingState(true);
     startProgressTimer();
   }
@@ -418,12 +530,13 @@ function onYTPlayerStateChange(event) {
       clearTimeout(bufferingWatchdogTimer);
       bufferingWatchdogTimer = null;
     }
-    // If stream was temporarily stepped down due to network stall, restore target quality seamlessly
-    if (isBufferStalled && videoQuality && videoQuality !== 'auto') {
-      isBufferStalled = false;
+    // If stream is in default mode, guarantee it stays on tiny (144p) to conserve bandwidth
+    if (videoMode === 'default') {
       try {
-        ytPlayer.setPlaybackQuality(videoQuality);
-        ytPlayer.setPlaybackQualityRange(videoQuality, 'highres');
+        ytPlayer.setPlaybackQuality('tiny');
+        if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
+          ytPlayer.setPlaybackQualityRange('tiny', 'small');
+        }
       } catch (e) {}
     }
 
@@ -479,27 +592,38 @@ function onYTPlayerStateChange(event) {
     stopProgressTimer();
     disableCaptions(ytPlayer);
 
-    // Watchdog: If buffering exceeds 3.5 seconds on high quality (1080p/720p),
-    // momentarily expand quality range so DASH can grab available chunks without freezing
+    // Watchdog: If buffering exceeds 2s on mobile or 3.5s on desktop,
+    // step down quality gracefully to tiny/small so audio buffer resumes immediately without freezing
     if (!bufferingWatchdogTimer) {
       bufferingWatchdogTimer = setTimeout(() => {
-        if (isPlayerReady && ytPlayer && (videoQuality === 'hd1080' || videoQuality === 'hd720')) {
+        if (isPlayerReady && ytPlayer) {
           try {
             isBufferStalled = true;
-            ytPlayer.setPlaybackQualityRange('medium', 'highres');
+            if (videoMode === 'default') {
+              ytPlayer.setPlaybackQuality('tiny');
+              ytPlayer.setPlaybackQualityRange('tiny', 'small');
+            } else {
+              ytPlayer.setPlaybackQuality(isMobileDevice ? 'small' : 'medium');
+              ytPlayer.setPlaybackQualityRange('small', isMobileDevice ? 'medium' : 'large');
+            }
           } catch (e) {}
         }
-      }, 3500);
+      }, isMobileDevice ? 2000 : 3500);
     }
   }
 }
 
 function onYTPlayerError(err) {
-  console.warn('YouTube Player notice/error:', err);
-  showToast('Track unavailable, skipping to next in queue...');
+  const code = (err && typeof err === 'object') ? err.data : err;
+  console.warn('YouTube Player notice/error code:', code);
+  if (code === 150 || code === 101) {
+    showToast('⚠️ Video dibatasi oleh pemiliknya untuk disematkan, melewati...');
+  } else {
+    showToast('⚠️ Lagu tidak tersedia, melewati ke antrean berikutnya...');
+  }
   setTimeout(() => {
     handleTrackEnded();
-  }, 1000);
+  }, 1200);
 }
 
 // Update Play/Pause UI elements
@@ -544,13 +668,16 @@ function togglePlayPause() {
     autoPlayOnReady = true;
     setPlayingState(true);
     startProgressTimer();
+    if (window.YT && window.YT.Player) {
+      initYouTubePlayer();
+    }
     return;
   }
   if (isPlaying) {
-    ytPlayer.pauseVideo();
+    try { ytPlayer.pauseVideo(); } catch (e) {}
     setPlayingState(false);
   } else {
-    ytPlayer.playVideo();
+    try { ytPlayer.playVideo(); } catch (e) {}
     setPlayingState(true);
     if (!playbackStartTime) playbackStartTime = Date.now() - (currentSeconds * 1000);
     startProgressTimer();
@@ -580,7 +707,16 @@ function loadAndPlayTrack(track) {
   updatePlayerUI(track);
 
   if (isPlayerReady && ytPlayer) {
-    const suggestedQ = (videoQuality && videoQuality !== 'auto') ? videoQuality : 'default';
+    let suggestedQ = 'default';
+    if (videoMode === 'default') {
+      // In default ambient mode, audio is priority; request tiny (144p) to maximize buffer speed & eliminate stalls
+      suggestedQ = 'tiny';
+    } else if (videoQuality && videoQuality !== 'auto') {
+      suggestedQ = videoQuality;
+    } else if (isMobileDevice) {
+      suggestedQ = 'medium'; // 360p optimal for mobile phone screens
+    }
+
     try {
       ytPlayer.loadVideoById({ videoId: track.id, startSeconds: 0, suggestedQuality: suggestedQ });
       ytPlayer.playVideo();
@@ -590,16 +726,41 @@ function loadAndPlayTrack(track) {
         ytPlayer.playVideo();
       } catch (err) {}
     }
-    if (videoQuality && videoQuality !== 'auto') {
-      try { ytPlayer.setPlaybackQuality(videoQuality); } catch (err) {}
+
+    if (videoMode === 'default') {
+      try {
+        ytPlayer.setPlaybackQuality('tiny');
+        if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
+          ytPlayer.setPlaybackQualityRange('tiny', 'small');
+        }
+      } catch (err) {}
+    } else if (videoQuality && videoQuality !== 'auto') {
+      try {
+        ytPlayer.setPlaybackQuality(videoQuality);
+        if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
+          ytPlayer.setPlaybackQualityRange('small', videoQuality);
+        }
+      } catch (err) {}
+    } else {
+      try {
+        if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
+          ytPlayer.setPlaybackQualityRange('small', isMobileDevice ? 'hd720' : 'highres');
+        }
+      } catch (err) {}
     }
+
     disableCaptions(ytPlayer);
     setTimeout(() => disableCaptions(ytPlayer), 600);
     setTimeout(() => disableCaptions(ytPlayer), 1600);
     setPlayingState(true);
     startProgressTimer();
   } else {
+    pendingTrackToPlay = track;
     autoPlayOnReady = true;
+    setPlayingState(true);
+    if (window.YT && window.YT.Player) {
+      initYouTubePlayer();
+    }
   }
 
   showToast(`Playing: ${track.title}`);
@@ -838,6 +999,62 @@ let lastPreloadId = null;
 let currentDetectedArtist = '';
 let currentDetectedGenre = '';
 
+// Active backend API endpoint: automatically detects between local PHP ('search.php') and Vercel Node.js Serverless ('api/search')
+let activeSearchEndpoint = (typeof window !== 'undefined' && window.location && window.location.hostname.includes('vercel.app')) ? 'api/search' : null;
+
+async function fetchSearchApi(queryString) {
+  // If active endpoint is already determined (e.g. already switched to api/search on Vercel)
+  if (activeSearchEndpoint) {
+    try {
+      const res = await fetch(`${activeSearchEndpoint}?${queryString}`);
+      if (res.ok) {
+        const text = await res.text();
+        if (!text.trim().startsWith('<')) {
+          return JSON.parse(text);
+        }
+      }
+    } catch (e) {
+      console.warn(`[SearchAPI] Error fetching from ${activeSearchEndpoint}:`, e);
+    }
+  }
+
+  // 1. Try search.php (standard for local Apache / XAMPP)
+  try {
+    const res = await fetch(`search.php?${queryString}`);
+    if (res.ok) {
+      const text = await res.text();
+      // Detect if Vercel or static server served raw PHP file instead of executing it
+      if (text.trim().startsWith('<?php') || text.trim().startsWith('<html') || text.trim().startsWith('<!DOCTYPE')) {
+        console.warn('[SearchAPI] search.php served statically without PHP runtime. Switching to Vercel Serverless /api/search...');
+        activeSearchEndpoint = 'api/search';
+      } else {
+        const json = JSON.parse(text);
+        activeSearchEndpoint = 'search.php';
+        return json;
+      }
+    }
+  } catch (err) {
+    console.warn('[SearchAPI] search.php failed, falling back to api/search:', err);
+  }
+
+  // 2. Try api/search (Node.js Serverless Function on Vercel)
+  try {
+    const res = await fetch(`api/search?${queryString}`);
+    if (res.ok) {
+      const text = await res.text();
+      if (!text.trim().startsWith('<')) {
+        const json = JSON.parse(text);
+        activeSearchEndpoint = 'api/search';
+        return json;
+      }
+    }
+  } catch (err) {
+    console.warn('[SearchAPI] api/search fallback failed:', err);
+  }
+
+  return null;
+}
+
 async function preloadRelatedTracks(track) {
   if (!track || !track.id) return;
   if (lastPreloadId === track.id) return;
@@ -845,20 +1062,18 @@ async function preloadRelatedTracks(track) {
 
   try {
     const playedParam = Array.from(playedHistory).slice(-15).join(',');
-    const res = await fetch(`search.php?related=1&id=${encodeURIComponent(track.id)}&title=${encodeURIComponent(track.title || '')}&channel=${encodeURIComponent(track.channel || '')}&played=${encodeURIComponent(playedParam)}`);
-    if (res.ok) {
-      const json = await res.json();
-      if (json && json.success && Array.isArray(json.results) && json.results.length > 0) {
-        currentDetectedArtist = json.artist || '';
-        currentDetectedGenre = json.genre || '';
-        // Filter out played history and current track
-        const unplayed = json.results.filter(t => t.id !== track.id && !playedHistory.has(t.id));
-        preloadedRelatedTracks = unplayed.length > 0 ? unplayed : json.results.filter(t => t.id !== track.id);
-        
-        // Refresh queue UI if empty so upcoming radio track is visible
-        if (musicQueue.length === 0) {
-          renderQueueUI();
-        }
+    const queryString = `related=1&id=${encodeURIComponent(track.id)}&title=${encodeURIComponent(track.title || '')}&channel=${encodeURIComponent(track.channel || '')}&played=${encodeURIComponent(playedParam)}`;
+    const json = await fetchSearchApi(queryString);
+    if (json && json.success && Array.isArray(json.results) && json.results.length > 0) {
+      currentDetectedArtist = json.artist || '';
+      currentDetectedGenre = json.genre || '';
+      // Filter out played history and current track
+      const unplayed = json.results.filter(t => t.id !== track.id && !playedHistory.has(t.id));
+      preloadedRelatedTracks = unplayed.length > 0 ? unplayed : json.results.filter(t => t.id !== track.id);
+      
+      // Refresh queue UI if empty so upcoming radio track is visible
+      if (musicQueue.length === 0) {
+        renderQueueUI();
       }
     }
   } catch (err) {
@@ -887,25 +1102,23 @@ async function autoPlayRelatedTrack(lastTrack) {
     const trackTitle = lastTrack ? (lastTrack.title || '') : '';
     const trackChannel = lastTrack ? (lastTrack.channel || '') : '';
     const playedParam = Array.from(playedHistory).slice(-15).join(',');
+    const queryString = `related=1&id=${encodeURIComponent(trackId)}&title=${encodeURIComponent(trackTitle)}&channel=${encodeURIComponent(trackChannel)}&played=${encodeURIComponent(playedParam)}`;
 
-    const res = await fetch(`search.php?related=1&id=${encodeURIComponent(trackId)}&title=${encodeURIComponent(trackTitle)}&channel=${encodeURIComponent(trackChannel)}&played=${encodeURIComponent(playedParam)}`);
-    if (res.ok) {
-      const json = await res.json();
-      if (json && json.success && Array.isArray(json.results) && json.results.length > 0) {
-        currentDetectedArtist = json.artist || '';
-        currentDetectedGenre = json.genre || '';
-        const candidates = json.results.filter(t => t.id !== trackId && !playedHistory.has(t.id));
-        const chosen = candidates.length > 0 ? candidates[0] : json.results[0];
-        
-        // Save the rest for subsequent auto-plays
-        preloadedRelatedTracks = json.results.filter(t => t.id !== chosen.id && t.id !== trackId);
-        
-        loadAndPlayTrack(chosen);
-        const label = chosen.relation_label ? `🎵 Auto-playing (${chosen.relation_label}): "${chosen.title}"` : `🎵 Auto-playing related: "${chosen.title}"`;
-        showToast(label);
-        isFetchingRelated = false;
-        return;
-      }
+    const json = await fetchSearchApi(queryString);
+    if (json && json.success && Array.isArray(json.results) && json.results.length > 0) {
+      currentDetectedArtist = json.artist || '';
+      currentDetectedGenre = json.genre || '';
+      const candidates = json.results.filter(t => t.id !== trackId && !playedHistory.has(t.id));
+      const chosen = candidates.length > 0 ? candidates[0] : json.results[0];
+      
+      // Save the rest for subsequent auto-plays
+      preloadedRelatedTracks = json.results.filter(t => t.id !== chosen.id && t.id !== trackId);
+      
+      loadAndPlayTrack(chosen);
+      const label = chosen.relation_label ? `🎵 Auto-playing (${chosen.relation_label}): "${chosen.title}"` : `🎵 Auto-playing related: "${chosen.title}"`;
+      showToast(label);
+      isFetchingRelated = false;
+      return;
     }
   } catch (err) {
     console.warn('Auto-play related fetch error:', err);
@@ -1216,16 +1429,13 @@ async function executeSearch(query) {
       return;
     }
 
-    // 2. Fetch results from local backend search.php
-    const res = await fetch(`search.php?q=${encodeURIComponent(trimmed)}`);
-    if (res.ok) {
-      const json = await res.json();
-      if (json && json.success && Array.isArray(json.results) && json.results.length > 0) {
-        renderSearchResults(json.results);
-        if (countEl) countEl.textContent = `${json.results.length} tracks found`;
-        if (spinner) spinner.classList.add('hidden');
-        return;
-      }
+    // 2. Fetch results from backend (search.php on Apache/XAMPP or api/search on Vercel)
+    const json = await fetchSearchApi(`q=${encodeURIComponent(trimmed)}`);
+    if (json && json.success && Array.isArray(json.results) && json.results.length > 0) {
+      renderSearchResults(json.results);
+      if (countEl) countEl.textContent = `${json.results.length} tracks found`;
+      if (spinner) spinner.classList.add('hidden');
+      return;
     }
 
     // 3. Fallback: Direct YouTube search fallback card
@@ -1786,6 +1996,20 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   }
+
+  // Cross-browser user gesture unlock for YouTube media playback
+  const unlockAudioOnGesture = () => {
+    if (isPlaying && isPlayerReady && ytPlayer && typeof ytPlayer.getPlayerState === 'function') {
+      try {
+        const state = ytPlayer.getPlayerState();
+        if (state !== 1 && state !== 3) {
+          ytPlayer.playVideo();
+        }
+      } catch (e) {}
+    }
+  };
+  window.addEventListener('click', unlockAudioOnGesture, { passive: true });
+  window.addEventListener('touchstart', unlockAudioOnGesture, { passive: true });
 
   // Playback Control Buttons
   const btnPlayPause = document.getElementById('btn-play-pause');
@@ -2378,10 +2602,27 @@ function drawRoundedRect(ctx, x, y, width, height, radius) {
   ctx.fill();
 }
 
+let lastVizTimestamp = 0;
+
 function renderVisualizer(timestamp) {
   if (!vizCanvas || !vizCtx) {
     vizAnimationId = requestAnimationFrame(renderVisualizer);
     return;
+  }
+
+  // When tab is hidden or phone screen is off, pause visualizer to save 100% CPU/GPU resources
+  if (typeof document !== 'undefined' && document.hidden) {
+    vizAnimationId = requestAnimationFrame(renderVisualizer);
+    return;
+  }
+
+  // Mobile optimization: throttle visualizer to ~30fps to free up CPU and GPU bandwidth for video decoding
+  if (isMobileDevice) {
+    if (timestamp - lastVizTimestamp < 33) {
+      vizAnimationId = requestAnimationFrame(renderVisualizer);
+      return;
+    }
+    lastVizTimestamp = timestamp;
   }
 
   const rect = vizCanvas.getBoundingClientRect();
@@ -2489,8 +2730,10 @@ function drawSpectrumMode(width, height) {
 
     vizCtx.save();
     vizCtx.fillStyle = '#ffffff';
-    vizCtx.shadowColor = '#38bdf8';
-    vizCtx.shadowBlur = 4;
+    if (!isMobileDevice) {
+      vizCtx.shadowColor = '#38bdf8';
+      vizCtx.shadowBlur = 4;
+    }
     vizCtx.fillRect(x, peakY, effectiveWidth, 1.8);
     vizCtx.restore();
   }
@@ -2574,8 +2817,10 @@ function drawWaveMode(width, height, t) {
   vizCtx.lineTo(last.x, last.y);
   vizCtx.strokeStyle = '#38bdf8';
   vizCtx.lineWidth = 2.5;
-  vizCtx.shadowColor = '#38bdf8';
-  vizCtx.shadowBlur = 8;
+  if (!isMobileDevice) {
+    vizCtx.shadowColor = '#38bdf8';
+    vizCtx.shadowBlur = 8;
+  }
   vizCtx.stroke();
   vizCtx.restore();
 }

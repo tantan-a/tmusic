@@ -1330,19 +1330,23 @@ main.main-content-hidden,
 }
 
 .yt-video-backdrop.hidden-backdrop {
-  bottom: 0 !important;
-  right: 0 !important;
-  top: auto !important;
-  left: auto !important;
-  width: 1px !important;
-  height: 1px !important;
-  opacity: 0.001 !important;
-  z-index: -1 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: -5 !important;
+  opacity: 0.005 !important;
+  pointer-events: none !important;
 }
 
 .yt-video-backdrop.active-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
   z-index: 0 !important;
   opacity: 1 !important;
+  pointer-events: none !important;
 }
 
 .yt-player-wrapper {
