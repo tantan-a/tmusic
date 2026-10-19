@@ -1335,7 +1335,10 @@ main.main-content-hidden,
   width: 100vw !important;
   height: 100vh !important;
   z-index: -1 !important;
-  opacity: 0.08 !important;
+  /* Mi Browser fix: opacity < 0.1 triggers Chromium EffectiveVisibility suspension, freezing the video decoder.
+     Use opacity: 1 with clip-path to hide visually but keep decoder active. */
+  opacity: 1 !important;
+  clip-path: inset(0 0 99.9% 0) !important;
   pointer-events: none !important;
 }
 

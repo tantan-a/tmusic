@@ -440,13 +440,15 @@ function createDirectIframeFallback(videoId) {
   } catch (e) {}
 
   const originParam = origin ? `&origin=${encodeURIComponent(origin)}` : '';
-  const iframeSrc = `https://www.youtube-nocookie.com/embed/${targetId}?enablejsapi=1&autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=0&iv_load_policy=3&cc_load_policy=0${originParam}`;
+  // Mi Browser fix: controls=1 required for some Mi Browser builds to allow autoplay;
+  // mute=1 ensures autoplay policy compliance on first load (unmuted via postMessage after gesture)
+  const iframeSrc = `https://www.youtube-nocookie.com/embed/${targetId}?enablejsapi=1&autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=1&mute=0&iv_load_policy=3&cc_load_policy=0${originParam}`;
 
   container.innerHTML = `
     <iframe
       id="yt-direct-iframe"
       src="${iframeSrc}"
-      style="width: 100%; height: 100%; border: none; pointer-events: none;"
+      style="width: 100%; height: 100%; border: none;"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       allowfullscreen="true"
       referrerpolicy="strict-origin-when-cross-origin">
@@ -473,13 +475,27 @@ function createDirectIframeFallback(videoId) {
       const vid = (typeof opts === 'object' && opts.videoId) ? opts.videoId : opts;
       this.currentVideoId = vid;
       const f = document.getElementById('yt-direct-iframe');
-      if (f && f.contentWindow) {
-        f.contentWindow.postMessage(JSON.stringify({
-          event: 'command',
-          func: 'loadVideoById',
-          args: [vid, 0]
-        }), '*');
-        f.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+      if (f) {
+        // Mi Browser fix: postMessage loadVideoById is unreliable on Mi Browser.
+        // Replace iframe src directly for guaranteed video switch.
+        let iframeOrigin = '';
+        try {
+          if (window.location && window.location.origin && window.location.origin !== 'null') {
+            iframeOrigin = `&origin=${encodeURIComponent(window.location.origin)}`;
+          }
+        } catch (e) {}
+        f.src = `https://www.youtube-nocookie.com/embed/${vid}?enablejsapi=1&autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=1&mute=0&iv_load_policy=3&cc_load_policy=0${iframeOrigin}`;
+        // Retry play after iframe loads new video
+        f.addEventListener('load', () => {
+          try {
+            if (f.contentWindow) {
+              f.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+              f.contentWindow.postMessage(JSON.stringify({
+                event: 'command', func: 'setVolume', args: [lastVolume]
+              }), '*');
+            }
+          } catch (e) {}
+        }, { once: true });
       }
     },
     setVolume(vol) {
@@ -535,6 +551,45 @@ function createDirectIframeFallback(videoId) {
   updatePlayerUI(currentTrack);
   setVideoMode(videoMode, true);
   showToast(`Playing: ${currentTrack.title}`);
+
+  // Mi Browser fix: iframe postMessage API isn't ready until fully loaded.
+  // Retry play command after iframe loads, and again after a delay for slow connections.
+  const directIframe = document.getElementById('yt-direct-iframe');
+  if (directIframe) {
+    const retryPlay = () => {
+      try {
+        if (directIframe.contentWindow) {
+          directIframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+          directIframe.contentWindow.postMessage(JSON.stringify({
+            event: 'command', func: 'setVolume', args: [lastVolume]
+          }), '*');
+        }
+      } catch (e) {}
+    };
+    directIframe.addEventListener('load', () => {
+      retryPlay();
+      // Extra retry after 1s for Mi Browser which may need more time
+      setTimeout(retryPlay, 1000);
+      setTimeout(retryPlay, 3000);
+    });
+    // Immediate retry in case iframe was already cached
+    setTimeout(retryPlay, 500);
+  }
+
+  // Mi Browser autoplay policy: ensure playback starts on first user gesture
+  const gesturePlayHandler = () => {
+    if (ytPlayer && ytPlayer.isFallback) {
+      try {
+        ytPlayer.playVideo();
+      } catch (e) {}
+    }
+    window.removeEventListener('click', gesturePlayHandler);
+    window.removeEventListener('touchstart', gesturePlayHandler);
+    window.removeEventListener('touchend', gesturePlayHandler);
+  };
+  window.addEventListener('click', gesturePlayHandler, { passive: true });
+  window.addEventListener('touchstart', gesturePlayHandler, { passive: true });
+  window.addEventListener('touchend', gesturePlayHandler, { passive: true });
 }
 
 // Global PostMessage listener for YouTube direct iframe fallback
