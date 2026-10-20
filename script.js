@@ -5,46 +5,11 @@
 // 1. Curated Initial Aesthetic Tracks (Track 0 has exact duration for real-time timer)
 const CURATED_PLAYLIST = [
   {
-    id: 'UDVtMYqUAyw',
+    id: 'sF80I-TQiW0',
     title: 'Interstellar Main Theme - Soundtrack by Hans Zimmer',
     channel: 'Cinémavore',
     duration: '12:56',
-    thumbnail: 'https://i.ytimg.com/vi/UDVtMYqUAyw/hqdefault.jpg'
-  },
-  {
-    id: '7nhA9Om_fS4',
-    title: 'TULUS - Hati-Hati di Jalan (Official Lyric Video)',
-    channel: 'Tulus',
-    duration: '4:02',
-    thumbnail: 'https://i.ytimg.com/vi/7nhA9Om_fS4/hqdefault.jpg'
-  },
-  {
-    id: 'p3K81J2t9bY',
-    title: 'NIKI - Every Summertime (Official Video)',
-    channel: 'NIKI',
-    duration: '3:36',
-    thumbnail: 'https://i.ytimg.com/vi/p3K81J2t9bY/hqdefault.jpg'
-  },
-  {
-    id: 'e6jRks6Kq0M',
-    title: 'Studio Ghibli Relaxing Piano Collection',
-    channel: 'Relax Music',
-    duration: '1:30:15',
-    thumbnail: 'https://i.ytimg.com/vi/e6jRks6Kq0M/hqdefault.jpg'
-  },
-  {
-    id: '4xDzrJKXOOY',
-    title: 'synthwave radio - chill synth / retro beats',
-    channel: 'Lofi Girl',
-    duration: 'LIVE',
-    thumbnail: 'https://i.ytimg.com/vi/4xDzrJKXOOY/hqdefault.jpg'
-  },
-  {
-    id: 'jfKfPfyJRdk',
-    title: 'lofi hip hop radio - beats to relax/study to',
-    channel: 'Lofi Girl',
-    duration: 'LIVE',
-    thumbnail: 'https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg'
+    thumbnail: 'https://i.ytimg.com/vi/sF80I-TQiW0/hqdefault.jpg'
   }
 ];
 
