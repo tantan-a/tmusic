@@ -1349,7 +1349,7 @@ main.main-content-hidden,
   height: 100vh !important;
   z-index: 0 !important;
   opacity: 1 !important;
-  pointer-events: none !important;
+  pointer-events: auto !important;
 }
 
 .yt-player-wrapper {
@@ -1372,6 +1372,16 @@ main.main-content-hidden,
   border: none !important;
   pointer-events: none;
   filter: brightness(0.68) saturate(1.15);
+}
+
+/* Mi Browser fix: when video mode is active, enable pointer-events on iframe
+   so user can tap YouTube's play button if autoplay is blocked */
+.yt-video-backdrop.active-backdrop .yt-player-wrapper {
+  pointer-events: auto;
+}
+.yt-video-backdrop.active-backdrop .yt-player-wrapper iframe,
+.yt-video-backdrop.active-backdrop .yt-player-wrapper #yt-player-container {
+  pointer-events: auto;
 }
 
 .yt-video-overlay {

@@ -157,6 +157,7 @@ function setVideoMode(mode, silent = false) {
 
   const heroVideo = document.getElementById('hero-video');
   const ytBackdrop = document.getElementById('yt-video-backdrop');
+  const ytOverlay = document.querySelector('.yt-video-overlay');
   const switchBtns = document.querySelectorAll('.switch-video-btn');
 
   switchBtns.forEach(btn => {
@@ -177,8 +178,11 @@ function setVideoMode(mode, silent = false) {
       ytBackdrop.classList.remove('hidden-backdrop');
       ytBackdrop.classList.add('active-backdrop');
     }
+    if (ytOverlay) {
+      ytOverlay.style.display = 'none';
+    }
 
-    // 2. Restore video stream quality for active video viewing
+    // 2. Restore video stream quality for active video viewing (loads HD video clip)
     if (isPlayerReady && ytPlayer) {
       try {
         const targetQ = (videoQuality && videoQuality !== 'auto') ? videoQuality : (isMobileDevice ? 'medium' : 'default');
@@ -189,7 +193,7 @@ function setVideoMode(mode, silent = false) {
       } catch (e) {}
     }
 
-    if (!silent) showToast('🎬 Video Mode: Memutar video klip YouTube');
+    if (!silent) showToast('🎬 Video Mode: Memuat & memutar video klip YouTube (HD)');
   } else {
     // 1. Resume ambient background video
     if (heroVideo) {
@@ -200,20 +204,23 @@ function setVideoMode(mode, silent = false) {
       ytBackdrop.classList.remove('active-backdrop');
       ytBackdrop.classList.add('hidden-backdrop');
     }
+    if (ytOverlay) {
+      ytOverlay.style.display = '';
+    }
 
     // 2. Optimization for Default Mode:
-    // In ambient mode, the YouTube video is hidden behind ambient background.
-    // Set YouTube video stream to 'tiny' (144p) to reduce bandwidth by 95% and eliminate mobile buffer stalls!
+    // In default mode, YouTube video is hidden and locked to 'tiny' (144p).
+    // This reduces bandwidth by 95-98% and turns off heavy video rendering so only music audio is streamed!
     if (isPlayerReady && ytPlayer) {
       try {
         ytPlayer.setPlaybackQuality('tiny');
         if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
-          ytPlayer.setPlaybackQualityRange('tiny', 'small');
+          ytPlayer.setPlaybackQualityRange('tiny', 'tiny');
         }
       } catch (e) {}
     }
 
-    if (!silent) showToast('🌌 Default Mode: Video ambient background (Hemat Data)');
+    if (!silent) showToast('🌌 Default Mode: Mode Musik (Hanya Audio, Hemat Kuota & Ringan)');
   }
 }
 
@@ -441,8 +448,9 @@ function createDirectIframeFallback(videoId) {
 
   const originParam = origin ? `&origin=${encodeURIComponent(origin)}` : '';
   // Mi Browser fix: controls=1 required for some Mi Browser builds to allow autoplay;
-  // mute=1 ensures autoplay policy compliance on first load (unmuted via postMessage after gesture)
-  const iframeSrc = `https://www.youtube-nocookie.com/embed/${targetId}?enablejsapi=1&autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=1&mute=0&iv_load_policy=3&cc_load_policy=0${originParam}`;
+  // mute=1 satisfies Chromium autoplay policy (muted videos CAN autoplay without gesture).
+  // Audio will be unmuted via postMessage after playback starts or after user gesture.
+  const iframeSrc = `https://www.youtube-nocookie.com/embed/${targetId}?enablejsapi=1&autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=1&mute=1&iv_load_policy=3&cc_load_policy=0${originParam}`;
 
   container.innerHTML = `
     <iframe
@@ -484,8 +492,8 @@ function createDirectIframeFallback(videoId) {
             iframeOrigin = `&origin=${encodeURIComponent(window.location.origin)}`;
           }
         } catch (e) {}
-        f.src = `https://www.youtube-nocookie.com/embed/${vid}?enablejsapi=1&autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=1&mute=0&iv_load_policy=3&cc_load_policy=0${iframeOrigin}`;
-        // Retry play after iframe loads new video
+        f.src = `https://www.youtube-nocookie.com/embed/${vid}?enablejsapi=1&autoplay=1&playsinline=1&rel=0&modestbranding=1&controls=1&mute=1&iv_load_policy=3&cc_load_policy=0${iframeOrigin}`;
+        // Retry play and unmute after iframe loads new video
         f.addEventListener('load', () => {
           try {
             if (f.contentWindow) {
@@ -493,6 +501,17 @@ function createDirectIframeFallback(videoId) {
               f.contentWindow.postMessage(JSON.stringify({
                 event: 'command', func: 'setVolume', args: [lastVolume]
               }), '*');
+              // Unmute after 1.5s (autoplay starts muted to comply with policy)
+              setTimeout(() => {
+                try {
+                  if (f.contentWindow) {
+                    f.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                    f.contentWindow.postMessage(JSON.stringify({
+                      event: 'command', func: 'setVolume', args: [lastVolume]
+                    }), '*');
+                  }
+                } catch (e) {}
+              }, 1500);
             }
           } catch (e) {}
         }, { once: true });
@@ -549,6 +568,9 @@ function createDirectIframeFallback(videoId) {
   setPlayingState(true);
   startProgressTimer();
   updatePlayerUI(currentTrack);
+
+  // Respect current videoMode (in Default mode, video is hidden & audio-only in 144p)
+  // Video is ONLY loaded/shown when the user switches to 'Video' mode
   setVideoMode(videoMode, true);
   showToast(`Playing: ${currentTrack.title}`);
 
@@ -566,21 +588,43 @@ function createDirectIframeFallback(videoId) {
         }
       } catch (e) {}
     };
+    // Unmute after initial muted autoplay succeeds (called after user gesture or delay)
+    const unmutePlayer = () => {
+      try {
+        if (directIframe.contentWindow) {
+          directIframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+          directIframe.contentWindow.postMessage(JSON.stringify({
+            event: 'command', func: 'setVolume', args: [lastVolume]
+          }), '*');
+        }
+      } catch (e) {}
+    };
     directIframe.addEventListener('load', () => {
       retryPlay();
       // Extra retry after 1s for Mi Browser which may need more time
       setTimeout(retryPlay, 1000);
+      // Unmute after 2s (autoplay should have started muted by then)
+      setTimeout(unmutePlayer, 2000);
       setTimeout(retryPlay, 3000);
+      setTimeout(unmutePlayer, 3500);
     });
     // Immediate retry in case iframe was already cached
     setTimeout(retryPlay, 500);
   }
 
-  // Mi Browser autoplay policy: ensure playback starts on first user gesture
+  // Mi Browser autoplay policy: ensure playback starts AND unmutes on first user gesture
   const gesturePlayHandler = () => {
     if (ytPlayer && ytPlayer.isFallback) {
       try {
         ytPlayer.playVideo();
+        // Unmute on user gesture (gesture context allows unmuting)
+        const f = document.getElementById('yt-direct-iframe');
+        if (f && f.contentWindow) {
+          f.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+          f.contentWindow.postMessage(JSON.stringify({
+            event: 'command', func: 'setVolume', args: [lastVolume]
+          }), '*');
+        }
       } catch (e) {}
     }
     window.removeEventListener('click', gesturePlayHandler);
@@ -759,7 +803,7 @@ function onYTPlayerStateChange(event) {
       try {
         ytPlayer.setPlaybackQuality('tiny');
         if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
-          ytPlayer.setPlaybackQualityRange('tiny', 'small');
+          ytPlayer.setPlaybackQualityRange('tiny', 'tiny');
         }
       } catch (e) {}
     }
@@ -976,7 +1020,7 @@ function loadAndPlayTrack(track) {
       try {
         ytPlayer.setPlaybackQuality('tiny');
         if (typeof ytPlayer.setPlaybackQualityRange === 'function') {
-          ytPlayer.setPlaybackQualityRange('tiny', 'small');
+          ytPlayer.setPlaybackQualityRange('tiny', 'tiny');
         }
       } catch (err) {}
     } else if (videoQuality && videoQuality !== 'auto') {
