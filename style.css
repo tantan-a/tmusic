@@ -281,7 +281,7 @@ html, body {
     max-height: clamp(80px, 18vh, 150px);
   }
   .queue-panel {
-    height: clamp(300px, 54vh, 460px) !important;
+    height: clamp(340px, 60vh, 520px) !important;
   }
   header nav {
     padding-top: 0.5rem !important;
@@ -308,7 +308,7 @@ html, body {
     max-height: clamp(70px, 15vh, 120px);
   }
   .queue-panel {
-    height: clamp(240px, 48vh, 360px) !important;
+    height: clamp(300px, 58vh, 460px) !important;
   }
   header nav {
     padding-top: 0.4rem !important;
@@ -1090,12 +1090,12 @@ html, body {
 .queue-panel {
   position: fixed;
   z-index: 50;
-  background: rgba(4, 12, 24, 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(4, 12, 24, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1108,8 +1108,8 @@ html, body {
     right: 1.25rem;
     top: 50%;
     bottom: auto;
-    width: 295px;
-    height: clamp(360px, 58vh, 560px);
+    width: clamp(330px, 24.5vw, 385px);
+    height: clamp(420px, 68vh, 680px);
     max-height: calc(100dvh - 8.5rem);
     transform: translateY(-50%);
     opacity: 1;
@@ -1129,9 +1129,9 @@ html, body {
     right: 0.75rem;
     top: 50%;
     bottom: auto;
-    width: 310px;
+    width: 330px;
     max-width: calc(100vw - 1.5rem);
-    height: clamp(320px, 68vh, 520px);
+    height: clamp(380px, 76vh, 580px);
     max-height: calc(100dvh - 5rem);
     transform: translate(calc(100% + 1.5rem), -50%);
     opacity: 0;
@@ -1152,6 +1152,279 @@ html, body {
   padding: 0.65rem 0.85rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   flex-shrink: 0;
+}
+
+/* YouTube Sidebar Tabs (Rekomendasi, Playlist, Antrean) */
+.yt-sidebar-tabs {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.yt-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.yt-tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.yt-tab-btn.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.yt-tab-badge {
+  font-size: 9px;
+  font-family: monospace;
+  padding: 0.05rem 0.35rem;
+  border-radius: 9999px;
+  background: rgba(34, 211, 238, 0.2);
+  color: rgb(103, 232, 249);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  line-height: 1;
+}
+
+/* YouTube Filter Chips (Semua, Artis Sama, Genre Serupa, Mix) */
+.yt-filter-chip {
+  padding: 0.22rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.yt-filter-chip:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.yt-filter-chip.active {
+  color: rgb(103, 232, 249);
+  background: rgba(34, 211, 238, 0.18);
+  border-color: rgba(34, 211, 238, 0.4);
+  font-weight: 600;
+}
+
+/* Scrollable Items Containers */
+.yt-items-container,
+.queue-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+.yt-items-container::-webkit-scrollbar,
+.queue-items-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.yt-items-container::-webkit-scrollbar-thumb,
+.queue-items-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+}
+
+/* YouTube Recommendation Cards (Right Sidebar) */
+.yt-rec-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.yt-rec-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.yt-rec-card.is-active {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: rgba(34, 211, 238, 0.35);
+}
+
+.yt-rec-thumb-box {
+  position: relative;
+  width: 90px;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.yt-rec-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.yt-rec-card:hover .yt-rec-thumb {
+  transform: scale(1.05);
+}
+
+.yt-rec-dur {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  font-size: 9px;
+  font-family: monospace;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  line-height: 1;
+}
+
+.yt-rec-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.yt-rec-card:hover .yt-rec-overlay {
+  opacity: 1;
+}
+
+.yt-rec-info {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.yt-rec-title {
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: #fff;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.25;
+}
+
+.yt-rec-card:hover .yt-rec-title {
+  color: rgb(103, 232, 249);
+}
+
+.yt-rec-channel {
+  font-size: 0.67rem;
+  color: hsl(var(--muted-foreground));
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.yt-rec-tag {
+  font-size: 8.5px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(34, 211, 238, 0.12);
+  color: rgb(103, 232, 249);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 2px;
+}
+
+.yt-rec-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.yt-rec-card:hover .yt-rec-actions {
+  opacity: 1;
+}
+
+.yt-rec-btn {
+  padding: 0.25rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.yt-rec-btn:hover {
+  background: rgba(34, 211, 238, 0.25);
+  color: rgb(103, 232, 249);
+  border-color: rgba(34, 211, 238, 0.5);
+  transform: scale(1.1);
+}
+
+/* Skeleton Shimmer Loading */
+.yt-skeleton-card {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  animation: ytShimmer 1.4s ease-in-out infinite;
+}
+
+.yt-skeleton-thumb {
+  width: 90px;
+  height: 52px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.yt-skeleton-line {
+  height: 10px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+@keyframes ytShimmer {
+  0% { opacity: 0.35; }
+  50% { opacity: 0.75; }
+  100% { opacity: 0.35; }
 }
 
 .queue-now-playing-box {

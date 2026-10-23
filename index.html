@@ -103,7 +103,7 @@
         <a href="#library" class="nav-link text-sm text-muted-foreground hover:text-foreground transition-colors" data-nav="library">Library</a>
       </div> -->
 
-      <!-- Navigation Actions: Search & Mobile Menu Toggle -->
+      <!-- Navigation Actions: Search, Playlist & Mobile Menu Toggle -->
       <div class="flex items-center gap-2 sm:gap-3">
         <button 
           type="button" 
@@ -112,6 +112,20 @@
           aria-label="Search Music">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <span class="hidden sm:inline">Search</span>
+        </button>
+
+        <!-- Playlist & Rekomendasi YouTube Navigation Button -->
+        <button 
+          type="button" 
+          id="nav-btn-playlist" 
+          class="liquid-glass rounded-full px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs text-foreground flex items-center gap-1.5 hover:scale-[1.03] cursor-pointer" 
+          aria-label="Buka Rekomendasi Playlist" 
+          title="Buka Rekomendasi Playlist YouTube">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400">
+            <path d="M21 15V6M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM12 12H3M16 6H3M12 18H3"></path>
+          </svg>
+          <span class="hidden sm:inline">Playlist</span>
+          <span id="nav-rec-badge" class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
         </button>
 
         <!-- <button 
@@ -427,17 +441,12 @@
     <!-- Right: Volume & Playback Queue Trigger -->
     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
 
-      <!-- Queue Toggle Button -->
-      <button type="button" id="btn-toggle-queue" class="player-ctrl-btn relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-muted-foreground hover:text-foreground transition-all cursor-pointer select-none" title="Toggle Playback Queue" aria-label="Playback Queue">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="8" y1="6" x2="21" y2="6"></line>
-          <line x1="8" y1="12" x2="21" y2="12"></line>
-          <line x1="8" y1="18" x2="21" y2="18"></line>
-          <line x1="3" y1="6" x2="3.01" y2="6"></line>
-          <line x1="3" y1="12" x2="3.01" y2="12"></line>
-          <line x1="3" y1="18" x2="3.01" y2="18"></line>
+      <!-- Queue & YouTube Playlist Toggle Button -->
+      <button type="button" id="btn-toggle-queue" class="player-ctrl-btn relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-muted-foreground hover:text-foreground transition-all cursor-pointer select-none" title="Buka Rekomendasi Playlist YouTube & Antrean" aria-label="Playlist & Rekomendasi YouTube">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400">
+          <path d="M21 15V6M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM12 12H3M16 6H3M12 18H3"></path>
         </svg>
-        <span class="text-xs hidden md:inline font-medium">Queue</span>
+        <span class="text-xs hidden md:inline font-medium">Playlist</span>
         <span id="queue-badge" class="min-w-[17px] h-4 px-1 rounded-full bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 text-[10px] font-mono flex items-center justify-center leading-none">0</span>
       </button>
 
@@ -454,45 +463,95 @@
   <!-- Backdrop for mobile queue drawer -->
   <div id="queue-backdrop" class="queue-backdrop lg:hidden" aria-hidden="true"></div>
 
-  <!-- Playback Queue Panel (Desktop Right Docked / Mobile Slide Drawer) -->
-  <aside id="queue-panel" class="queue-panel" aria-label="Playback Queue">
+  <!-- YouTube Playlist & Rekomendasi Sidebar Panel (Desktop Right Docked / Mobile Slide Drawer) -->
+  <aside id="queue-panel" class="queue-panel" aria-label="YouTube Playlist and Recommendations">
     <!-- Header -->
     <div class="queue-header">
       <div class="flex items-center gap-2 select-none">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400">
-          <line x1="8" y1="6" x2="21" y2="6"></line>
-          <line x1="8" y1="12" x2="21" y2="12"></line>
-          <line x1="8" y1="18" x2="21" y2="18"></line>
-          <line x1="3" y1="6" x2="3.01" y2="6"></line>
-          <line x1="3" y1="12" x2="3.01" y2="12"></line>
-          <line x1="3" y1="18" x2="3.01" y2="18"></line>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-400">
+          <path d="M21 15V6M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM12 12H3M16 6H3M12 18H3"></path>
         </svg>
-        <span class="font-semibold text-xs tracking-wider uppercase text-foreground">Play Queue</span>
-        <span id="queue-count-badge" class="min-w-[18px] h-4 px-1 rounded-full text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center justify-center">0</span>
+        <span class="font-semibold text-xs tracking-wider uppercase text-foreground">Rekomendasi & Playlist</span>
       </div>
       <div class="flex items-center gap-1">
-        <button type="button" id="btn-clear-queue" class="text-[11px] text-muted-foreground hover:text-red-300 px-2 py-0.5 rounded hover:bg-white/10 transition-colors cursor-pointer" title="Clear all tracks in queue">Clear</button>
-        <button type="button" id="btn-close-queue" class="p-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-white/10 transition-colors cursor-pointer" aria-label="Close queue panel">
+        <button type="button" id="btn-close-queue" class="p-1 text-muted-foreground hover:text-foreground rounded-full hover:bg-white/10 transition-colors cursor-pointer" aria-label="Close panel">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
         </button>
       </div>
     </div>
 
-    <!-- Now Playing Mini Box inside Queue -->
+    <!-- YouTube-style Tab Switcher: Rekomendasi, Playlist, Antrean -->
+    <div class="yt-sidebar-tabs px-2.5 pt-2 pb-1.5 flex items-center gap-1 border-b border-white/10 shrink-0 select-none">
+      <button type="button" id="tab-btn-recommendations" class="yt-tab-btn active" data-tab="recommendations" title="Rekomendasi lagu terkait seperti di YouTube">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <span>Rekomendasi</span>
+        <span id="rec-count-badge" class="yt-tab-badge">0</span>
+      </button>
+      <button type="button" id="tab-btn-playlists" class="yt-tab-btn" data-tab="playlists" title="Koleksi Playlist YouTube kurasi">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15V6M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM12 12H3M16 6H3M12 18H3"></path></svg>
+        <span>Playlist</span>
+      </button>
+      <button type="button" id="tab-btn-queue" class="yt-tab-btn" data-tab="queue" title="Antrean putar lagu saya">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        <span>Antrean</span>
+        <span id="queue-count-badge" class="yt-tab-badge">0</span>
+      </button>
+    </div>
+
+    <!-- Now Playing Mini Box inside Sidebar -->
     <div id="queue-now-playing" class="queue-now-playing-box px-3 py-2 border-b border-white/10 shrink-0">
       <!-- Injected dynamically -->
     </div>
 
-    <!-- Scrollable Queue Items -->
-    <div class="px-3 pt-2 pb-1 text-[10px] uppercase font-semibold text-muted-foreground tracking-wider select-none shrink-0 flex items-center justify-between">
-      <span>Up Next</span>
-      <button type="button" id="btn-toggle-autoplay" class="queue-autoplay-pill text-[9px] font-medium inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-400/10 text-cyan-300 border border-cyan-400/20 hover:bg-cyan-400/20 transition-all cursor-pointer" title="Click to toggle queue autoplay">
-        <span id="autoplay-dot" class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-        <span id="autoplay-status-text">Autoplay: ON</span>
-      </button>
+    <!-- TAB 1: Rekomendasi Terkait YouTube -->
+    <div id="tab-view-recommendations" class="yt-tab-view flex-1 flex flex-col min-h-0 overflow-hidden">
+      <!-- Filter Chips -->
+      <div class="px-2.5 py-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 border-b border-white/5 select-none" id="rec-filter-chips">
+        <button type="button" class="yt-filter-chip active" data-filter="all">Semua</button>
+        <button type="button" class="yt-filter-chip" data-filter="artist">Artis Terkait</button>
+        <button type="button" class="yt-filter-chip" data-filter="genre">Genre Serupa</button>
+        <button type="button" class="yt-filter-chip" data-filter="mix">YouTube Mix</button>
+      </div>
+
+      <!-- Recommendation Items List -->
+      <div id="recommendation-items-list" class="yt-items-container flex-1 overflow-y-auto px-2 py-2">
+        <!-- Injected dynamically -->
+      </div>
     </div>
-    <div id="queue-items-list" class="queue-items-container flex-1 overflow-y-auto px-2 pb-2">
-      <!-- Injected dynamically -->
+
+    <!-- TAB 2: Curated Playlists YouTube -->
+    <div id="tab-view-playlists" class="yt-tab-view flex-1 flex flex-col min-h-0 overflow-hidden hidden">
+      <!-- Playlist Category Selector Chips -->
+      <div class="px-2.5 py-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0 border-b border-white/5 select-none" id="playlist-category-chips">
+        <!-- Injected dynamically -->
+      </div>
+
+      <!-- Active Playlist Header / Action Bar -->
+      <div id="playlist-active-header" class="px-3 py-2 bg-white/[0.02] border-b border-white/5 shrink-0 flex items-center justify-between">
+        <!-- Injected dynamically -->
+      </div>
+
+      <!-- Playlist Tracks List -->
+      <div id="playlist-tracks-list" class="yt-items-container flex-1 overflow-y-auto px-2 py-2">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+
+    <!-- TAB 3: Antrean Lagu (Queue) -->
+    <div id="tab-view-queue" class="yt-tab-view flex-1 flex flex-col min-h-0 overflow-hidden hidden">
+      <div class="px-3 pt-2 pb-1 text-[10px] uppercase font-semibold text-muted-foreground tracking-wider select-none shrink-0 flex items-center justify-between border-b border-white/5">
+        <div class="flex items-center gap-2">
+          <span>Up Next</span>
+          <button type="button" id="btn-clear-queue" class="text-[10px] normal-case text-muted-foreground hover:text-red-300 px-1.5 py-0.5 rounded hover:bg-white/10 transition-colors cursor-pointer" title="Hapus semua lagu antrean">Hapus Semua</button>
+        </div>
+        <button type="button" id="btn-toggle-autoplay" class="queue-autoplay-pill text-[9px] font-medium inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-400/10 text-cyan-300 border border-cyan-400/20 hover:bg-cyan-400/20 transition-all cursor-pointer" title="Klik untuk mengaktifkan/menonaktifkan autoplay antrean">
+          <span id="autoplay-dot" class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span id="autoplay-status-text">Autoplay: ON</span>
+        </button>
+      </div>
+      <div id="queue-items-list" class="queue-items-container flex-1 overflow-y-auto px-2 pb-2 pt-1">
+        <!-- Injected dynamically -->
+      </div>
     </div>
   </aside>
 

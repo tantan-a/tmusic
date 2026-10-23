@@ -13,6 +13,228 @@ const CURATED_PLAYLIST = [
   }
 ];
 
+// Curated YouTube Playlists Collection (YouTube Mixes & Soundtracks)
+const CURATED_YOUTUBE_PLAYLISTS = [
+  {
+    id: 'cinematic',
+    title: 'Cinematic Soundtracks & Film Scores',
+    curator: 'Hans Zimmer & Master Composers',
+    badge: 'Cinematic',
+    icon: '🌌',
+    description: 'Soundtrack epik film terbaik untuk fokus & imajinasi mendalam.',
+    tracks: [
+      {
+        id: 'sF80I-TQiW0',
+        title: 'Interstellar Main Theme - Soundtrack by Hans Zimmer',
+        channel: 'Cinémavore',
+        duration: '12:56',
+        thumbnail: 'https://i.ytimg.com/vi/sF80I-TQiW0/hqdefault.jpg'
+      },
+      {
+        id: 'UDVtMYqUAyw',
+        title: 'Time - Inception Soundtrack (Hans Zimmer)',
+        channel: 'Hans Zimmer',
+        duration: '4:35',
+        thumbnail: 'https://i.ytimg.com/vi/UDVtMYqUAyw/hqdefault.jpg'
+      },
+      {
+        id: '1j0eA0_yJ_Y',
+        title: 'Now We Are Free - Gladiator Soundtrack',
+        channel: 'Hans Zimmer & Lisa Gerrard',
+        duration: '4:14',
+        thumbnail: 'https://i.ytimg.com/vi/1j0eA0_yJ_Y/hqdefault.jpg'
+      },
+      {
+        id: 'O6NRLYUThrY',
+        title: 'Can You Hear The Music - Oppenheimer',
+        channel: 'Ludwig Göransson',
+        duration: '1:50',
+        thumbnail: 'https://i.ytimg.com/vi/O6NRLYUThrY/hqdefault.jpg'
+      },
+      {
+        id: 'c2_eW_G2G1w',
+        title: 'Dune: Paul\'s Dream - Official Soundtrack',
+        channel: 'Hans Zimmer',
+        duration: '7:03',
+        thumbnail: 'https://i.ytimg.com/vi/c2_eW_G2G1w/hqdefault.jpg'
+      },
+      {
+        id: '2OEL4P1Rz04',
+        title: 'Cornfield Chase - Interstellar Official Soundtrack',
+        channel: 'Hans Zimmer',
+        duration: '2:07',
+        thumbnail: 'https://i.ytimg.com/vi/2OEL4P1Rz04/hqdefault.jpg'
+      }
+    ]
+  },
+  {
+    id: 'lofi',
+    title: 'Lofi Chill Beats & Deep Study',
+    curator: 'Lofi Girl & Chillhop Music',
+    badge: 'Lofi Focus',
+    icon: '☕',
+    description: 'Ketukan santai lofi hip hop untuk relaksasi, belajar, dan coding.',
+    tracks: [
+      {
+        id: 'jfKfPfyJRdk',
+        title: 'Lofi Hip Hop Radio - Beats to Relax/Study to',
+        channel: 'Lofi Girl',
+        duration: '3:15',
+        thumbnail: 'https://i.ytimg.com/vi/jfKfPfyJRdk/hqdefault.jpg'
+      },
+      {
+        id: '5yx6BWlEVcY',
+        title: 'Chillhop Essentials - Cozy Winter Vibes',
+        channel: 'Chillhop Music',
+        duration: '2:45',
+        thumbnail: 'https://i.ytimg.com/vi/5yx6BWlEVcY/hqdefault.jpg'
+      },
+      {
+        id: 'tfbvGMsP-O8',
+        title: 'Kupla - Kingdom in Blue',
+        channel: 'Kupla',
+        duration: '3:12',
+        thumbnail: 'https://i.ytimg.com/vi/tfbvGMsP-O8/hqdefault.jpg'
+      },
+      {
+        id: 'turLpCq_o9A',
+        title: 'Idealism - Controlla (Chill Beats)',
+        channel: 'Idealism',
+        duration: '2:30',
+        thumbnail: 'https://i.ytimg.com/vi/turLpCq_o9A/hqdefault.jpg'
+      },
+      {
+        id: '81WBzGUu4VU',
+        title: 'Kudasai - A Day in the Life',
+        channel: 'Kudasai',
+        duration: '2:24',
+        thumbnail: 'https://i.ytimg.com/vi/81WBzGUu4VU/hqdefault.jpg'
+      }
+    ]
+  },
+  {
+    id: 'indopop',
+    title: 'Indonesian Pop & Chill Acoustic',
+    curator: 'Top Hits Indonesia',
+    badge: 'Indo Hits',
+    icon: '🎸',
+    description: 'Lagu pop Indonesia paling syahdu, puitis, dan penuh rasa.',
+    tracks: [
+      {
+        id: 'rW1Q_v_Q2h4',
+        title: 'Tulus - Hati-Hati di Jalan',
+        channel: 'Tulus',
+        duration: '4:02',
+        thumbnail: 'https://i.ytimg.com/vi/rW1Q_v_Q2h4/hqdefault.jpg'
+      },
+      {
+        id: 'bZ_ZtqL1m-g',
+        title: 'Nadin Amizah - Rayuan Perempuan Gila',
+        channel: 'Nadin Amizah',
+        duration: '5:08',
+        thumbnail: 'https://i.ytimg.com/vi/bZ_ZtqL1m-g/hqdefault.jpg'
+      },
+      {
+        id: 'L-YJ93tqC-M',
+        title: 'Kunto Aji - Rehat (Official Audio)',
+        channel: 'Kunto Aji',
+        duration: '6:12',
+        thumbnail: 'https://i.ytimg.com/vi/L-YJ93tqC-M/hqdefault.jpg'
+      },
+      {
+        id: 'D4F-U1k-tGk',
+        title: 'Sal Priadi - Dari planet lain (Official Audio)',
+        channel: 'Sal Priadi',
+        duration: '3:45',
+        thumbnail: 'https://i.ytimg.com/vi/D4F-U1k-tGk/hqdefault.jpg'
+      },
+      {
+        id: 'BdcJ_96r-40',
+        title: 'Hindia - Evaluasi (Official Audio)',
+        channel: 'Hindia',
+        duration: '3:24',
+        thumbnail: 'https://i.ytimg.com/vi/BdcJ_96r-40/hqdefault.jpg'
+      }
+    ]
+  },
+  {
+    id: 'synthwave',
+    title: 'Synthwave & Midnight Drive',
+    curator: 'Retro Electro Waves',
+    badge: 'Retro Synth',
+    icon: '🌆',
+    description: 'Suasana malam retro 80-an dengan analog synthesizer dan neon vibes.',
+    tracks: [
+      {
+        id: '4xDzrJKXOOY',
+        title: 'The Midnight - Sunset',
+        channel: 'The Midnight',
+        duration: '5:26',
+        thumbnail: 'https://i.ytimg.com/vi/4xDzrJKXOOY/hqdefault.jpg'
+      },
+      {
+        id: '8GW6sLrK40k',
+        title: 'HOME - Resonance',
+        channel: 'Electronic Gems',
+        duration: '3:32',
+        thumbnail: 'https://i.ytimg.com/vi/8GW6sLrK40k/hqdefault.jpg'
+      },
+      {
+        id: 'MV_3Dpw-BRY',
+        title: 'Kavinsky - Nightcall (Drive Soundtrack)',
+        channel: 'Kavinsky',
+        duration: '4:18',
+        thumbnail: 'https://i.ytimg.com/vi/MV_3Dpw-BRY/hqdefault.jpg'
+      },
+      {
+        id: 'er416UETMH4',
+        title: 'Gunship - Tech Noir (Official Music Video)',
+        channel: 'GUNSHIP Music',
+        duration: '4:57',
+        thumbnail: 'https://i.ytimg.com/vi/er416UETMH4/hqdefault.jpg'
+      }
+    ]
+  },
+  {
+    id: 'piano',
+    title: 'Ghibli & Peaceful Piano',
+    curator: 'Joe Hisaishi & Classical Solo',
+    badge: 'Peaceful',
+    icon: '🎹',
+    description: 'Melodi piano lembut yang menenangkan jiwa dari Studio Ghibli & maestronya.',
+    tracks: [
+      {
+        id: 'yNn1_vLp7sU',
+        title: 'One Summer\'s Day - Spirited Away (Joe Hisaishi)',
+        channel: 'Joe Hisaishi Official',
+        duration: '3:41',
+        thumbnail: 'https://i.ytimg.com/vi/yNn1_vLp7sU/hqdefault.jpg'
+      },
+      {
+        id: 'H2z3h-yQZ6I',
+        title: 'Merry-Go-Round of Life - Howl\'s Moving Castle',
+        channel: 'Joe Hisaishi Official',
+        duration: '5:10',
+        thumbnail: 'https://i.ytimg.com/vi/H2z3h-yQZ6I/hqdefault.jpg'
+      },
+      {
+        id: '_3sL7gK91fM',
+        title: 'River Flows in You - Yiruma (Original Piano)',
+        channel: 'Yiruma',
+        duration: '3:08',
+        thumbnail: 'https://i.ytimg.com/vi/_3sL7gK91fM/hqdefault.jpg'
+      },
+      {
+        id: 'W1j_t7F70vU',
+        title: 'Merry Christmas Mr. Lawrence - Ryuichi Sakamoto',
+        channel: 'Ryuichi Sakamoto',
+        duration: '4:42',
+        thumbnail: 'https://i.ytimg.com/vi/W1j_t7F70vU/hqdefault.jpg'
+      }
+    ]
+  }
+];
+
 // Queue Storage Persistence (Cache via localStorage + Cookies)
 const QUEUE_STORAGE_KEY = 'tmusic_playback_queue';
 
@@ -958,6 +1180,9 @@ function loadAndPlayTrack(track) {
   currentSeconds = 0;
   playbackStartTime = Date.now();
   updatePlayerUI(track);
+  if (typeof fetchRecommendationsForSidebar === 'function') {
+    fetchRecommendationsForSidebar(track);
+  }
 
   if (isPlayerReady && ytPlayer) {
     let suggestedQ = 'default';
@@ -1104,6 +1329,12 @@ function updatePlayerUI(track) {
 
   // Sync Queue Now Playing block
   renderQueueUI();
+  if (typeof renderRecommendationsUI === 'function') {
+    renderRecommendationsUI();
+  }
+  if (typeof renderCuratedPlaylistsUI === 'function') {
+    renderCuratedPlaylistsUI();
+  }
 
   // Sync Pop-out window if active
   syncPopoutTrack(track);
@@ -1331,6 +1562,15 @@ async function preloadRelatedTracks(track) {
       const unplayed = json.results.filter(t => t.id !== track.id && !playedHistory.has(t.id));
       preloadedRelatedTracks = unplayed.length > 0 ? unplayed : json.results.filter(t => t.id !== track.id);
       
+      // Update recommendations for right sidebar if needed
+      if (liveRecommendations.length === 0 || lastFetchedRecId !== track.id) {
+        liveRecommendations = [...json.results];
+        lastFetchedRecId = track.id;
+        if (typeof renderRecommendationsUI === 'function') {
+          renderRecommendationsUI();
+        }
+      }
+
       // Refresh queue UI if empty so upcoming radio track is visible
       if (musicQueue.length === 0) {
         renderQueueUI();
@@ -1635,6 +1875,420 @@ function toggleAutoplayQueue() {
 // Expose handlers to window for inline onclick attributes
 window.playQueuedTrackIndex = playQueuedTrackIndex;
 window.removeFromQueue = removeFromQueue;
+
+// =========================================================================
+// 3.6 YouTube-Style Recommendations & Curated Playlist Sidebar System
+// =========================================================================
+let liveRecommendations = [];
+let lastFetchedRecId = null;
+let isLoadingRecommendations = false;
+let activeSidebarTab = 'recommendations';
+let activeRecFilter = 'all';
+let activeCuratedPlaylistId = 'cinematic';
+
+function renderRecommendationSkeletons() {
+  const container = document.getElementById('recommendation-items-list');
+  if (!container) return;
+  container.innerHTML = Array.from({ length: 6 }).map(() => `
+    <div class="yt-skeleton-card">
+      <div class="yt-skeleton-thumb"></div>
+      <div class="flex-1 space-y-1.5 min-w-0">
+        <div class="yt-skeleton-line w-full"></div>
+        <div class="yt-skeleton-line w-3/4"></div>
+        <div class="yt-skeleton-line w-1/3"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function fetchRecommendationsForSidebar(track, force = false) {
+  if (!track || !track.id) return;
+  if (!force && lastFetchedRecId === track.id && liveRecommendations.length > 0) {
+    renderRecommendationsUI();
+    return;
+  }
+
+  lastFetchedRecId = track.id;
+  isLoadingRecommendations = true;
+  if (activeSidebarTab === 'recommendations') {
+    renderRecommendationSkeletons();
+  }
+
+  try {
+    const playedParam = Array.from(playedHistory).slice(-15).join(',');
+    const queryString = `related=1&id=${encodeURIComponent(track.id)}&title=${encodeURIComponent(track.title || '')}&channel=${encodeURIComponent(track.channel || '')}&played=${encodeURIComponent(playedParam)}`;
+    const json = await fetchSearchApi(queryString);
+
+    if (json && json.success && Array.isArray(json.results) && json.results.length > 0) {
+      if (json.artist) currentDetectedArtist = json.artist;
+      if (json.genre) currentDetectedGenre = json.genre;
+      liveRecommendations = json.results;
+      // Preload the rest for infinite autoplay queue
+      preloadedRelatedTracks = json.results.filter(t => t.id !== track.id && !playedHistory.has(t.id));
+    } else {
+      // Fallback: Pick tracks from curated playlists
+      const fallbackList = [];
+      CURATED_YOUTUBE_PLAYLISTS.forEach(pl => {
+        pl.tracks.forEach(t => {
+          if (t.id !== track.id && !fallbackList.some(f => f.id === t.id)) {
+            fallbackList.push({
+              ...t,
+              relation_type: 'related',
+              relation_label: pl.badge
+            });
+          }
+        });
+      });
+      liveRecommendations = fallbackList.slice(0, 12);
+    }
+  } catch (err) {
+    console.warn('Error fetching recommendations for sidebar:', err);
+    // Fallback: Curated playlists
+    const fallbackList = [];
+    CURATED_YOUTUBE_PLAYLISTS.forEach(pl => {
+      pl.tracks.forEach(t => {
+        if (t.id !== track.id && !fallbackList.some(f => f.id === t.id)) {
+          fallbackList.push({
+            ...t,
+            relation_type: 'related',
+            relation_label: pl.badge
+          });
+        }
+      });
+    });
+    liveRecommendations = fallbackList.slice(0, 12);
+  } finally {
+    isLoadingRecommendations = false;
+    renderRecommendationsUI();
+  }
+}
+
+function getFilteredRecommendations() {
+  if (!Array.isArray(liveRecommendations)) return [];
+  if (activeRecFilter === 'artist') {
+    const byArtist = liveRecommendations.filter(t => {
+      if (t.relation_type === 'same_artist') return true;
+      if (currentDetectedArtist && t.channel && t.channel.toLowerCase().includes(currentDetectedArtist.toLowerCase())) return true;
+      return false;
+    });
+    return byArtist.length > 0 ? byArtist : liveRecommendations;
+  }
+  if (activeRecFilter === 'genre') {
+    const byGenre = liveRecommendations.filter(t => t.relation_type === 'same_genre');
+    return byGenre.length > 0 ? byGenre : liveRecommendations;
+  }
+  if (activeRecFilter === 'mix') {
+    return liveRecommendations;
+  }
+  return liveRecommendations;
+}
+
+function renderRecommendationsUI() {
+  const container = document.getElementById('recommendation-items-list');
+  const badgeEl = document.getElementById('rec-count-badge');
+  if (!container) return;
+
+  const currentTrack = playlist[currentTrackIndex] || CURATED_PLAYLIST[0];
+  const currentId = currentTrack ? currentTrack.id : null;
+  const filtered = getFilteredRecommendations();
+
+  if (badgeEl) {
+    badgeEl.textContent = `${filtered.length}`;
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="py-8 text-center text-muted-foreground select-none px-3">
+        <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-2 text-muted-foreground">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <p class="text-xs font-medium text-foreground/80">Belum ada rekomendasi</p>
+        <p class="text-[10px] mt-1 text-muted-foreground">Putar lagu untuk memuat rekomendasi lagu serupa otomatis seperti di YouTube.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered.map((track, idx) => {
+    const isCurrent = track.id === currentId;
+    const relationBadge = track.relation_label || (track.relation_type === 'same_artist' ? 'Artis Sama' : (track.relation_type === 'same_genre' ? 'Genre Serupa' : 'Rekomendasi YouTube'));
+
+    return `
+      <div class="yt-rec-card group ${isCurrent ? 'is-active' : ''}" data-rec-idx="${idx}" title="${escapeHtml(track.title)}">
+        <div class="yt-rec-thumb-box" onclick="playRecommendedTrack(${idx})">
+          <img src="${track.thumbnail || `https://i.ytimg.com/vi/${track.id}/hqdefault.jpg`}" class="yt-rec-thumb" alt="${escapeHtml(track.title)}" loading="lazy">
+          ${track.duration ? `<span class="yt-rec-dur">${track.duration}</span>` : ''}
+          <div class="yt-rec-overlay">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-white drop-shadow"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+
+        <div class="yt-rec-info" onclick="playRecommendedTrack(${idx})">
+          <h4 class="yt-rec-title" title="${escapeHtml(track.title)}">${escapeHtml(track.title)}</h4>
+          <div class="yt-rec-channel">
+            <span>${escapeHtml(track.channel)}</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" class="text-cyan-400 shrink-0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          </div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="yt-rec-tag">${relationBadge}</span>
+          </div>
+        </div>
+
+        <div class="yt-rec-actions">
+          <button type="button" class="yt-rec-btn" title="Tambah ke antrean" onclick="addRecommendedToQueue(${idx}, event)">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+          <button type="button" class="yt-rec-btn" title="Putar sekarang" onclick="playRecommendedTrack(${idx})">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderCuratedPlaylistsUI() {
+  const chipsContainer = document.getElementById('playlist-category-chips');
+  const headerContainer = document.getElementById('playlist-active-header');
+  const tracksContainer = document.getElementById('playlist-tracks-list');
+  if (!chipsContainer || !tracksContainer) return;
+
+  // 1. Render Category Chips
+  chipsContainer.innerHTML = CURATED_YOUTUBE_PLAYLISTS.map(pl => {
+    const isActive = pl.id === activeCuratedPlaylistId;
+    return `
+      <button type="button" class="yt-filter-chip ${isActive ? 'active' : ''}" onclick="selectCuratedPlaylist('${pl.id}')">
+        <span>${pl.icon}</span>
+        <span>${pl.badge}</span>
+      </button>
+    `;
+  }).join('');
+
+  // 2. Active Playlist Header
+  const activePl = CURATED_YOUTUBE_PLAYLISTS.find(p => p.id === activeCuratedPlaylistId) || CURATED_YOUTUBE_PLAYLISTS[0];
+  if (!activePl) return;
+
+  if (headerContainer) {
+    headerContainer.innerHTML = `
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs font-semibold text-foreground truncate">${escapeHtml(activePl.title)}</span>
+          <span class="text-[9px] px-1.5 py-0.2 rounded bg-cyan-400/15 text-cyan-300 font-mono">${activePl.tracks.length} lagu</span>
+        </div>
+        <p class="text-[10px] text-muted-foreground truncate mt-0.5">${escapeHtml(activePl.description)}</p>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0 ml-2">
+        <button type="button" class="px-2.5 py-1 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-400/30 text-[10px] font-medium flex items-center gap-1 cursor-pointer transition-all" onclick="playAllCuratedPlaylist('${activePl.id}')" title="Putar semua lagu di playlist ini">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <span>Putar Semua</span>
+        </button>
+      </div>
+    `;
+  }
+
+  // 3. Render Tracks List
+  const currentTrack = playlist[currentTrackIndex] || CURATED_PLAYLIST[0];
+  const currentId = currentTrack ? currentTrack.id : null;
+
+  tracksContainer.innerHTML = activePl.tracks.map((track, idx) => {
+    const isCurrent = track.id === currentId;
+    const num = (idx + 1) < 10 ? `0${idx + 1}` : `${idx + 1}`;
+
+    return `
+      <div class="yt-rec-card group ${isCurrent ? 'is-active' : ''}" data-pl-idx="${idx}" title="${escapeHtml(track.title)}">
+        <div class="w-4 text-[10px] font-mono text-muted-foreground flex items-center justify-center shrink-0">
+          ${isCurrent ? `<span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>` : num}
+        </div>
+
+        <div class="yt-rec-thumb-box" onclick="playCuratedTrack('${activePl.id}', ${idx})">
+          <img src="${track.thumbnail || `https://i.ytimg.com/vi/${track.id}/hqdefault.jpg`}" class="yt-rec-thumb" alt="${escapeHtml(track.title)}" loading="lazy">
+          ${track.duration ? `<span class="yt-rec-dur">${track.duration}</span>` : ''}
+          <div class="yt-rec-overlay">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-white drop-shadow"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+
+        <div class="yt-rec-info" onclick="playCuratedTrack('${activePl.id}', ${idx})">
+          <h4 class="yt-rec-title" title="${escapeHtml(track.title)}">${escapeHtml(track.title)}</h4>
+          <div class="yt-rec-channel">
+            <span>${escapeHtml(track.channel)}</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" class="text-cyan-400 shrink-0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          </div>
+        </div>
+
+        <div class="yt-rec-actions">
+          <button type="button" class="yt-rec-btn" title="Tambah ke antrean" onclick="addCuratedTrackToQueue('${activePl.id}', ${idx}, event)">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+          <button type="button" class="yt-rec-btn" title="Putar lagu ini" onclick="playCuratedTrack('${activePl.id}', ${idx})">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function playRecommendedTrack(index) {
+  const filtered = getFilteredRecommendations();
+  const track = filtered[index];
+  if (track) {
+    loadAndPlayTrack(track);
+  }
+}
+
+function addRecommendedToQueue(index, e) {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  const filtered = getFilteredRecommendations();
+  const track = filtered[index];
+  if (track) {
+    addToQueue(track);
+  }
+}
+
+function selectCuratedPlaylist(playlistId) {
+  activeCuratedPlaylistId = playlistId;
+  renderCuratedPlaylistsUI();
+}
+
+function playCuratedTrack(playlistId, index) {
+  const pl = CURATED_YOUTUBE_PLAYLISTS.find(p => p.id === playlistId);
+  if (pl && pl.tracks && pl.tracks[index]) {
+    loadAndPlayTrack(pl.tracks[index]);
+  }
+}
+
+function addCuratedTrackToQueue(playlistId, index, e) {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  const pl = CURATED_YOUTUBE_PLAYLISTS.find(p => p.id === playlistId);
+  if (pl && pl.tracks && pl.tracks[index]) {
+    addToQueue(pl.tracks[index]);
+  }
+}
+
+function playAllCuratedPlaylist(playlistId) {
+  const pl = CURATED_YOUTUBE_PLAYLISTS.find(p => p.id === playlistId);
+  if (!pl || !pl.tracks || pl.tracks.length === 0) return;
+
+  const firstTrack = pl.tracks[0];
+  const remaining = pl.tracks.slice(1);
+  musicQueue = [...remaining];
+  saveQueueToStorage(musicQueue);
+  renderQueueUI();
+
+  loadAndPlayTrack(firstTrack);
+  showToast(`Memutar playlist YouTube: "${pl.title}"`);
+}
+
+function switchSidebarTab(tabName) {
+  activeSidebarTab = tabName;
+  const btnRec = document.getElementById('tab-btn-recommendations');
+  const btnPl = document.getElementById('tab-btn-playlists');
+  const btnQ = document.getElementById('tab-btn-queue');
+
+  const viewRec = document.getElementById('tab-view-recommendations');
+  const viewPl = document.getElementById('tab-view-playlists');
+  const viewQ = document.getElementById('tab-view-queue');
+
+  if (btnRec) btnRec.classList.toggle('active', tabName === 'recommendations');
+  if (btnPl) btnPl.classList.toggle('active', tabName === 'playlists');
+  if (btnQ) btnQ.classList.toggle('active', tabName === 'queue');
+
+  if (viewRec) viewRec.classList.toggle('hidden', tabName !== 'recommendations');
+  if (viewPl) viewPl.classList.toggle('hidden', tabName !== 'playlists');
+  if (viewQ) viewQ.classList.toggle('hidden', tabName !== 'queue');
+
+  if (tabName === 'recommendations') {
+    renderRecommendationsUI();
+  } else if (tabName === 'playlists') {
+    renderCuratedPlaylistsUI();
+  } else if (tabName === 'queue') {
+    renderQueueUI();
+  }
+}
+
+function initYouTubeSidebar() {
+  // Tab Switchers
+  const btnRec = document.getElementById('tab-btn-recommendations');
+  const btnPl = document.getElementById('tab-btn-playlists');
+  const btnQ = document.getElementById('tab-btn-queue');
+
+  if (btnRec) btnRec.addEventListener('click', () => switchSidebarTab('recommendations'));
+  if (btnPl) btnPl.addEventListener('click', () => switchSidebarTab('playlists'));
+  if (btnQ) btnQ.addEventListener('click', () => switchSidebarTab('queue'));
+
+  // Recommendation Filter Chips
+  const filterChips = document.querySelectorAll('#rec-filter-chips .yt-filter-chip');
+  filterChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      filterChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeRecFilter = chip.getAttribute('data-filter') || 'all';
+      renderRecommendationsUI();
+    });
+  });
+
+  // Top Nav Playlist Button Toggle
+  const navBtnPlaylist = document.getElementById('nav-btn-playlist');
+  if (navBtnPlaylist) {
+    navBtnPlaylist.addEventListener('click', toggleQueuePanel);
+  }
+
+  // Keyboard Shortcut 'P' to toggle sidebar
+  window.addEventListener('keydown', (e) => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    if (e.key === 'p' || e.key === 'P') {
+      e.preventDefault();
+      toggleQueuePanel();
+    }
+  });
+
+  // Initial populate from curated tracks for instant display
+  const current = playlist[currentTrackIndex] || CURATED_PLAYLIST[0];
+  const initialRecs = [];
+  CURATED_YOUTUBE_PLAYLISTS.forEach(pl => {
+    pl.tracks.forEach(t => {
+      if (t.id !== current.id && !initialRecs.some(r => r.id === t.id)) {
+        initialRecs.push({
+          ...t,
+          relation_type: pl.id === 'cinematic' ? 'same_artist' : 'same_genre',
+          relation_label: pl.badge
+        });
+      }
+    });
+  });
+  liveRecommendations = initialRecs.slice(0, 12);
+  renderRecommendationsUI();
+  renderCuratedPlaylistsUI();
+
+  // Also fetch real-time recommendations from backend
+  fetchRecommendationsForSidebar(current);
+}
+
+// Expose handlers to window for inline HTML onclick attributes
+window.playRecommendedTrack = playRecommendedTrack;
+window.addRecommendedToQueue = addRecommendedToQueue;
+window.selectCuratedPlaylist = selectCuratedPlaylist;
+window.playCuratedTrack = playCuratedTrack;
+window.addCuratedTrackToQueue = addCuratedTrackToQueue;
+window.playAllCuratedPlaylist = playAllCuratedPlaylist;
+window.switchSidebarTab = switchSidebarTab;
 
 // 4. YouTube Search Functionality
 let searchDebounceTimer = null;
@@ -2323,6 +2977,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnClearQueue) btnClearQueue.addEventListener('click', clearQueue);
   if (btnToggleAutoplay) btnToggleAutoplay.addEventListener('click', toggleAutoplayQueue);
   if (queueBackdrop) queueBackdrop.addEventListener('click', closeQueuePanel);
+
+  // Initialize YouTube Playlist & Recommendations Sidebar
+  initYouTubeSidebar();
 
   // Under-Header Track Card: Click to toggle queue panel
   const headerTrackCard = document.getElementById('header-track-card');
